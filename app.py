@@ -4,9 +4,12 @@ import io
 import numpy as np
 import soundfile as sf
 import os
+from dotenv import load_dotenv
 
-# Hardcoded API key (For production, set it as an environment variable)
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "REMOVED_GROQ_KEY")
+load_dotenv()
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+MISSING_KEY_MSG = "GROQ_API_KEY is not set. Add it to your environment or a .env file, then restart the app."
 
 def transcribe_audio(audio):
     if audio is None:
@@ -51,6 +54,8 @@ def generate_response(transcription):
         return f"Error in response generation: {str(e)}"
 
 def process_audio(audio):
+    if not GROQ_API_KEY:
+        return MISSING_KEY_MSG, MISSING_KEY_MSG
     transcription = transcribe_audio(audio)
     response = generate_response(transcription)
     return transcription, response
@@ -167,6 +172,9 @@ h1, h2, h3 {
 # Build Gradio UI
 with gr.Blocks(theme=gr.themes.Default()) as demo:
     gr.Markdown("# 🎙️ AI Voice Assistant")
+
+    if not GROQ_API_KEY:
+        gr.Markdown(f"⚠️ **{MISSING_KEY_MSG}**")
 
     with gr.Row():
         audio_input = gr.Audio(label="Speak!", type="numpy")

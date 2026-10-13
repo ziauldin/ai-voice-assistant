@@ -3,3 +3,4 @@ gradio
 groq
 numpy
 soundfile
+python-dotenv
